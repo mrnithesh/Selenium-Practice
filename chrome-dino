@@ -1,0 +1,38 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+
+driver = webdriver.Chrome()
+
+
+driver.get("https://chromedino.com/")
+time.sleep(2)
+body = driver.find_element("tag name", "body")
+
+body.send_keys(Keys.SPACE)
+time.sleep(1)
+
+while True:
+    # Fetch obstacles info from game
+    obstacles = driver.execute_script("""
+        if (Runner.instance_.horizon.obstacles.length > 0) {
+            return Runner.instance_.horizon.obstacles.map(o => {
+                return {x: o.xPos, width: o.width, y: o.yPos, type: o.typeConfig.type};
+            });
+        }
+        return [];
+    """)
+
+    if obstacles:
+        obs = obstacles[0]
+        distance = obs['x']
+        width = obs['width']
+        y = obs['y']
+
+        # Simple jump logic (tweak threshold depending on speed)
+        if distance < 150 and y >= 75:  # cactus
+            body.send_keys(Keys.SPACE)
+        elif distance < 200 and y < 75:  # bird (higher jump)
+            body.send_keys(Keys.SPACE)
+
+    time.sleep(0.05)  # small delay to avoid CPU overload
