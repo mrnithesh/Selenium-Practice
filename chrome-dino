@@ -28,11 +28,15 @@ while True:
         distance = obs['x']
         width = obs['width']
         y = obs['y']
+        obstacle_type = obs['type']
 
-        # Simple jump logic (tweak threshold depending on speed)
-        if distance < 150 and y >= 75:  # cactus
-            body.send_keys(Keys.SPACE)
-        elif distance < 200 and y < 75:  # bird (higher jump)
-            body.send_keys(Keys.SPACE)
+        if distance < 150:
+            if obstacle_type == 'CACTUS_LARGE' or obstacle_type == 'CACTUS_SMALL':
+                body.send_keys(Keys.SPACE)  # Always jump for cacti
+            elif obstacle_type == 'PTERODACTYL':
+                if y > 60:  # Low flying pterodactyl
+                    body.send_keys(Keys.SPACE)  # Jump
+                else:  # High flying pterodactyl
+                    body.send_keys(Keys.ARROW_DOWN)  # Duck
 
     time.sleep(0.05)  # small delay to avoid CPU overload
